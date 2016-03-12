@@ -1,0 +1,3 @@
+'use strict';
+export const REQUEST_SENSOR_DATA = 'REQUEST_SENSOR_DATA';
+export const RECEIVE_SENSOR_DATA = 'RECEIVE_SENSOR_DATA';

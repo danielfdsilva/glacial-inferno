@@ -1,0 +1,39 @@
+  language: node_js
+node_js:
+  - "4"
+
+env:
+  global:
+  - CXX=g++-4.8
+  - GH_REF=github.com:danielfdsilva/glacial-inferno.git
+  - DEPLOY_BRANCH=master
+  - secure:  "qtRHcxqI367q4lTvxwYG9WgT80yT3yoNv0o4rhsq0jkZuQRzn0TrU/QkN17jYMUd4xorjCW8T6xKCySg+Iy3KaimJaJsF5W6y/uCKkf0tvxkirnU2yZWghNoABGjlsudVAX/8LObg1IPx6qQckWDC2jRJpdZxjSMyvWzQVshcU/yiys6oewmckRu+6lvADG0iK/7tAWwSA943nTIoBxqt0uoGIi4KJ/0312D3EX8nrtxebrjw59Cqv1Npb4do/+8dhaQxVQFiRNAX5cx5b6gvyRc2pBBjcmjefzzwI6ZolV3KNIlQgx6NIDf/ZsesY3sK+ZO3eurcSpQw8ao5TA7LBtkK66kdRj8ATyetrMwGiCCOppZmDeHQoADDkVvnBaq184vThWTTr2aBdiaIkB0qn8IgeSa4lhsZTClN+6tMYwLhA5JLZzHCl6zYe5DuhMuhDgkFsKcyAHoEhIaX4NBwiZe7oSeeRpgSP4UI9iOdts10epm8xwvifgC6+b5SWWBcaX/TFtVGBqnbL5z9O3VDOcfea7KjY2fjrb0J065azevpBQ7TitCj3qwuYNvKmJoriJ+39ZTzUSrAfHxgEfbj5glzX3c1ObJ+UP5DMdD1moe8cPqVpRhOZBTPXL+HANLJ5jUwFjitCilV9IxlLpmU0lUYtNuESpwZnMg/cCpFvM="
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
+
+cache:
+  apt: true
+  directories:
+    - node_modules
+
+before_install:
+- chmod +x ./.build_scripts/deploy.sh
+- chmod +x ./.build_scripts/lint.sh
+
+before_script:
+- ./.build_scripts/lint.sh
+
+script:
+- npm run build
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: .build_scripts/deploy.sh
+  on:
+    branch: ${DEPLOY_BRANCH}
