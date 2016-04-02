@@ -2,17 +2,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import ChartLine from '../components/charts/chart-line';
 import { fetchSensorData } from '../actions/action-creators';
-
-function numDisplay (n, dec, suffix = '', nan = '--') {
-  if (isNaN(n)) {
-    return nan;
-  }
-  let s = n.toString();
-  s = (s.indexOf('.') === -1) ? s : s.substr(0, s.indexOf('.') + dec + 1);
-  return s + suffix;
-}
+import SensorWidget from '../components/sensor-widget';
 
 var Home = React.createClass({
   displayName: 'Home',
@@ -26,10 +17,11 @@ var Home = React.createClass({
     })
   },
 
+  _fetchInterval: null,
+  // In seconds.
+  _fetchRate: 600, // 10 min
+
   prepareData: function () {
-    if (!this.props.sensorData.fetched) {
-      return null;
-    }
     let data = _.values(this.props.sensorData.data);
 
     let startToday = new Date();
@@ -39,79 +31,81 @@ var Home = React.createClass({
 
     startToday = Math.floor(startToday.getTime() / 1000);
     let startYesterday = startToday - (60 * 60 * 24);
+    // Discard data older than 3 days.
+    let daysAgo = startToday - (60 * 60 * 24 * 3);
 
-    let temp = [];
-    let hum = [];
-    let temp2 = [];
-    let hum2 = [];
+    let tempAll = [];
+    let tempToday = [];
+    let tempYesterday = [];
+    let humAll = [];
+    let humToday = [];
+    let humYesterday = [];
     _.forEach(data, o => {
-      temp.push({
+      let t = {
         timestep: new Date(o.time * 1000),
         value: o.data.t
-      });
-      hum.push({
+      };
+      let h = {
         timestep: new Date(o.time * 1000),
         value: o.data.h
-      });
+      };
+      if (o.time >= daysAgo) {
+        tempAll.push(t);
+        humAll.push(h);
+      }
+      if (o.time >= startToday) {
+        tempToday.push(t);
+        humToday.push(h);
+      }
       if (o.time < startToday && o.time >= startYesterday) {
-        temp2.push({
-          timestep: new Date(o.time * 1000),
-          value: o.data.t
-        });
-        hum2.push({
-          timestep: new Date(o.time * 1000),
-          value: o.data.h
-        });
+        tempYesterday.push(t);
+        humYesterday.push(h);
       }
     });
 
-    let avgs = {
-      today: {
-        t: _.sumBy(temp, 'value') / temp.length,
-        h: _.sumBy(hum, 'value') / hum.length
-      },
-      yesterday: {
-        t: _.sumBy(temp2, 'value') / temp2.length,
-        h: _.sumBy(hum2, 'value') / hum2.length
-      }
-    };
-
-    let last = _.last(data);
-    last = {
-      timestep: new Date(last.time * 1000),
-      t: last.data.t,
-      h: last.data.h
-    };
-
     return {
-      temp,
-      hum,
-      last,
-      avgs
+      // Temperature.
+      temp: {
+        data: tempAll,
+        last: _.last(tempAll) || null,
+        avgs: {
+          today: _.meanBy(tempToday, 'value'),
+          yesterday: _.meanBy(tempYesterday, 'value')
+        }
+      },
+      // Humidity.
+      hum: {
+        data: humAll,
+        last: _.last(humAll) || null,
+        avgs: {
+          today: _.meanBy(humToday, 'value'),
+          yesterday: _.meanBy(humYesterday, 'value')
+        }
+      }
     };
   },
 
-  formatDate: function (date) {
-    let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    let hour = date.getHours();
-    hour = hour < 10 ? `0${hour}` : hour;
-    let minute = date.getMinutes();
-    minute = minute < 10 ? `0${minute}` : minute;
-    return `${months[date.getMonth()]} ${date.getDate()}, ${hour}:${minute}`;
+  fetchData: function () {
+    this.props._requestSensorData();
   },
 
   componentDidMount: function () {
-    this.props._requestSensorData();
+    this.fetchData();
+    this._fetchInterval = setInterval(() => {
+      this.fetchData();
+    }, this._fetchRate * 1000);
+  },
+
+  componentWillUnmount: function () {
+    if (this._fetchInterval) {
+      clearInterval(this._fetchInterval);
+    }
   },
 
   render: function () {
     let { fetched, fetching } = this.props.sensorData;
 
-    if (!fetched && !fetching) {
-      return null;
-    }
-
-    let data = this.prepareData();
+    let { temp, hum } = this.prepareData();
 
     return (
       <section className='page'>
@@ -127,77 +121,33 @@ var Home = React.createClass({
           <section className='page__content'>
             <div className='inner'>
 
-              <article className='card card--temp'>
-                <header className='card__header'>
-                  <div className='card__headline'>
-                    <h1 className='card__title'>Temperature</h1>
-                    <dl className='stats'>
-                      <dd className='stats__label'>Last update</dd>
-                      <dt className='stats__date'>{data !== null ? this.formatDate(data.last.timestep) : '--'}</dt>
-                      <dd className='stats__label'>Current temperature</dd>
-                      <dt className='stats__value'>{data !== null ? numDisplay(data.last.t, 1) : '--'} ºC</dt>
-                    </dl>
-                  </div>
-                </header>
-                <div className='card__body'>
-                  <div className='infographic'>
-                    {data !== null ? (
-                    <div className='line-chart-wrapper'>
-                      <ChartLine
-                        className='line-chart'
-                        axisLineVal={20}
-                        axisLineMax={35}
-                        axisLineMin={10}
-                        dataUnitSuffix=' ºC'
-                        data={data.temp} />
-                    </div>
-                    ) : null}
-                    {fetching ? <p className='card__loading'>Loading Data...</p> : null}
-                  </div>
-                  <div className='metrics'>
-                    <ul className='metrics__list'>
-                      <li><strong>{data !== null ? numDisplay(data.avgs.today.t, 1, ' ºC') : '--'}</strong> avg today</li>
-                      <li><strong>{data !== null ? numDisplay(data.avgs.yesterday.t, 1, ' ºC') : '--'}</strong> avg yesterday</li>
-                    </ul>
-                  </div>
-                </div>
-              </article>
+              <SensorWidget
+                className='card--temp'
+                fetching={fetching}
+                fetched={fetched}
+                title='Temperature'
+                lastReading={temp.last}
+                avgs={temp.avgs}
+                plotData={temp.data}
+                axisLineMax={35}
+                axisLineVal={20}
+                axisLineMin={10}
+                unit=' ºC'
+              />
 
-              <article className='card card--hum'>
-                <header className='card__header'>
-                  <div className='card__headline'>
-                    <h1 className='card__title'>Humidity</h1>
-                    <dl className='stats'>
-                      <dd className='stats__label'>Last update</dd>
-                      <dt className='stats__date'>{data !== null ? this.formatDate(data.last.timestep) : '--'}</dt>
-                      <dd className='stats__label'>Current humididty</dd>
-                      <dt className='stats__value'>{data !== null ? numDisplay(data.last.h, 1) : '--'} %</dt>
-                    </dl>
-                  </div>
-                </header>
-                <div className='card__body'>
-                  <div className='infographic'>
-                    {data !== null ? (
-                    <div className='line-chart-wrapper'>
-                      <ChartLine
-                        className='line-chart'
-                        axisLineVal={50}
-                        axisLineMax={100}
-                        axisLineMin={25}
-                        dataUnitSuffix='%'
-                        data={data.hum} />
-                    </div>
-                    ) : null}
-                    {fetching ? <p className='card__loading'>Loading Data...</p> : null}
-                  </div>
-                  <div className='metrics'>
-                    <ul className='metrics__list'>
-                      <li><strong>{data !== null ? numDisplay(data.avgs.today.h, 1, '%') : '--'}</strong> avg today</li>
-                      <li><strong>{data !== null ? numDisplay(data.avgs.yesterday.h, 1, '%') : '--'}</strong> avg yesterday</li>
-                    </ul>
-                  </div>
-                </div>
-              </article>
+              <SensorWidget
+                className='card--hum'
+                fetching={fetching}
+                fetched={fetched}
+                title='Humidity'
+                lastReading={hum.last}
+                avgs={hum.avgs}
+                plotData={hum.data}
+                axisLineMax={100}
+                axisLineVal={50}
+                axisLineMin={25}
+                unit=' %'
+              />
 
             </div>
           </section>

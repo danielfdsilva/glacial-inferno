@@ -119,8 +119,8 @@ var Chart = function (options) {
     .scale(x)
     .orient('bottom')
     .tickSize(0)
-    .tickFormat(d3.time.format('%H:%M'))
-    .ticks(3);
+    .tickFormat(d3.time.format('%H:%M'));
+    // .ticks(3);
 
   function _calcSize () {
     _width = parseInt($el.style('width'), 10) - margin.left - margin.right;
