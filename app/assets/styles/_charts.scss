@@ -8,8 +8,8 @@ svg.chart {
 .line-chart-wrapper {
   min-height: 10rem;
 }
-.line-chart {
 
+.line-chart {
   .data-line {
     stroke: #fff;
     stroke-width: 2px;
@@ -17,6 +17,11 @@ svg.chart {
   }
 
   .edge {
+    font-size: 0.75rem;
+    fill: rgba(#fff, 0.8);
+  }
+
+  .days {
     font-size: 0.75rem;
     fill: rgba(#fff, 0.8);
   }

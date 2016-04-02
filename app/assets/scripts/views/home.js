@@ -45,16 +45,15 @@ var Home = React.createClass({
     let temp2 = [];
     let hum2 = [];
     _.forEach(data, o => {
-      if (o.time >= startToday) {
-        temp.push({
-          timestep: new Date(o.time * 1000),
-          value: o.data.t
-        });
-        hum.push({
-          timestep: new Date(o.time * 1000),
-          value: o.data.h
-        });
-      } else if (o.time < startToday && o.time >= startYesterday) {
+      temp.push({
+        timestep: new Date(o.time * 1000),
+        value: o.data.t
+      });
+      hum.push({
+        timestep: new Date(o.time * 1000),
+        value: o.data.h
+      });
+      if (o.time < startToday && o.time >= startYesterday) {
         temp2.push({
           timestep: new Date(o.time * 1000),
           value: o.data.t
