@@ -166,7 +166,7 @@ var Home = React.createClass({
               <article className='card card--hum'>
                 <header className='card__header'>
                   <div className='card__headline'>
-                    <h1 className='card__title'>Humididty</h1>
+                    <h1 className='card__title'>Humidity</h1>
                     <dl className='stats'>
                       <dd className='stats__label'>Last update</dd>
                       <dt className='stats__date'>{data !== null ? this.formatDate(data.last.timestep) : '--'}</dt>
