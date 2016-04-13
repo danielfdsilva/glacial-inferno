@@ -2,6 +2,8 @@
 
 Simple dashboard to show temperature and humidity readings.
 
+![glacial-inferno-dashboard.png](glacial-inferno-dashboard.png)
+
 ## Development environment
 To set up the development environment for this website, you'll need to install the following on your system:
 
@@ -25,7 +27,7 @@ The system will watch files and execute tasks whenever one of them changes.
 The site will automatically refresh since it is bundled with livereload.
 
 ### Other commands
-Compile the sass files, javascript... Use this instead of ```gulp serve``` if you don't want to watch.
+Compile the files to the `dist` folder ready for production.
 ```
 $ npm run build
 ```
