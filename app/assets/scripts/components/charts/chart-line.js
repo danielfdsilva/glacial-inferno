@@ -120,7 +120,6 @@ var Chart = function (options) {
     .orient('bottom')
     .tickSize(0)
     .tickFormat(d3.time.format('%H:%M'));
-    // .ticks(3);
 
   function _calcSize () {
     _width = parseInt($el.style('width'), 10) - margin.left - margin.right;
@@ -317,6 +316,12 @@ var Chart = function (options) {
       // Recalculate the minX and zoom since scale changed.
       minX = x(_data[0].timestep);
       zoom.x(x);
+
+      if (_width < 400) {
+        xAxis.ticks(3);
+      } else {
+        xAxis.ticks(10);
+      }
 
       // Redraw.
       layers.line();
