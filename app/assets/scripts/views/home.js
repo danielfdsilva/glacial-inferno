@@ -132,6 +132,7 @@ var Home = React.createClass({
                 axisLineMax={35}
                 axisLineVal={20}
                 axisLineMin={10}
+                numDaysVisible={1}
                 unit=' ºC'
               />
 
@@ -146,6 +147,7 @@ var Home = React.createClass({
                 axisLineMax={100}
                 axisLineVal={50}
                 axisLineMin={25}
+                numDaysVisible={1}
                 unit=' %'
               />
 

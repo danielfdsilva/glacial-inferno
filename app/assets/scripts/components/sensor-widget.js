@@ -17,6 +17,7 @@ var SensorWidget = React.createClass({
     axisLineVal: React.PropTypes.number,
     axisLineMax: React.PropTypes.number,
     axisLineMin: React.PropTypes.number,
+    numDaysVisible: React.PropTypes.number,
     unit: React.PropTypes.string
   },
 
@@ -27,7 +28,7 @@ var SensorWidget = React.createClass({
       title,
       lastReading, avgs,
       plotData,
-      axisLineVal, axisLineMax, axisLineMin,
+      axisLineVal, axisLineMax, axisLineMin, numDaysVisible,
       unit } = this.props;
 
     if (!fetched && !fetching) {
@@ -57,6 +58,7 @@ var SensorWidget = React.createClass({
                 axisLineMax={axisLineMax}
                 axisLineMin={axisLineMin}
                 dataUnitSuffix={unit}
+                numDaysVisible={numDaysVisible}
                 data={plotData} />
             </div>
             ) : null}

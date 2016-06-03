@@ -13,6 +13,7 @@ var LineChart = React.createClass({
     axisLineVal: React.PropTypes.number,
     axisLineMax: React.PropTypes.number,
     axisLineMin: React.PropTypes.number,
+    numDaysVisible: React.PropTypes.number,
     dataUnitSuffix: React.PropTypes.string
   },
 
@@ -34,6 +35,7 @@ var LineChart = React.createClass({
       .axisLineVal(this.props.axisLineVal)
       .axisValueMax(this.props.axisLineMax)
       .axisValueMin(this.props.axisLineMin)
+      .numDaysVisible(this.props.numDaysVisible)
       .dataUnitSuffix(this.props.dataUnitSuffix));
   },
 
@@ -76,7 +78,7 @@ module.exports = LineChart;
 var Chart = function (options) {
   // Data related variables for which we have getters and setters.
   var _data = null;
-  var _axisLineVal, _axisValueMin, _axisValueMax, _dataUnitSuffix;
+  var _axisLineVal, _axisValueMin, _axisValueMax, _numDaysVisible, _dataUnitSuffix;
 
   // Pause
   var _pauseUpdate = false;
@@ -338,7 +340,7 @@ var Chart = function (options) {
 
       // Update scale domains.
       let eDate = _.last(_data).timestep;
-      let sDate = d3.time.day.offset(eDate, -1);
+      let sDate = d3.time.day.offset(eDate, -(_numDaysVisible || 1));
       x.domain([sDate, eDate]);
 
       // Since the data is stacked the last element will contain the
@@ -441,6 +443,13 @@ var Chart = function (options) {
   chartFn.axisValueMax = function (d) {
     if (!arguments.length) return _axisValueMax;
     _axisValueMax = d;
+    if (typeof updateData === 'function') updateData();
+    return chartFn;
+  };
+
+  chartFn.numDaysVisible = function (d) {
+    if (!arguments.length) return _numDaysVisible;
+    _numDaysVisible = d;
     if (typeof updateData === 'function') updateData();
     return chartFn;
   };
