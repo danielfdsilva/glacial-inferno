@@ -1,6 +1,6 @@
 {
   "name": "glacial-inferno",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Glacial Inferno dashboards",
   "repository": {
     "type": "git",
@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/danielfdsilva/glacial-inferno/issues"
   },
-  "homepage": "",
+  "homepage": "https://github.com/danielfdsilva/glacial-inferno",
   "scripts": {
     "postinstall": "[ -f app/assets/scripts/config/local.js ] || echo 'module.exports = {};' > app/assets/scripts/config/local.js",
     "serve": "gulp collecticons && gulp serve",
