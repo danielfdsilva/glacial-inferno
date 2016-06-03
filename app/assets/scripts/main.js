@@ -13,6 +13,7 @@ import reducer from './reducers/reducer';
 // import UhOh from './views/uhoh';
 import App from './views/app';
 import Home from './views/home';
+import Historic from './views/historic';
 
 const appHistory = useRouterHistory(createHashHistory)({ queryKey: false });
 
@@ -27,7 +28,8 @@ const store = finalCreateStore(reducer);
 render((
   <Provider store={store}>
     <Router history={appHistory}>
-      <Route path='*' component={App}>
+      <Route path='/' component={App}>
+        <Route path='/historic' component={Historic} />
         <IndexRoute component={Home}/>
       </Route>
     </Router>
